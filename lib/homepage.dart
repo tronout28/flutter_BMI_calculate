@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+void main() => runApp(MaterialApp(home: Home()));
+
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
 
@@ -91,6 +93,14 @@ class _HomeState extends State<Home> {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: hasCalculated ? resetBMI : calculateBMI,
+              style: ElevatedButton.styleFrom(
+                primary: Color.fromARGB(255, 41, 42, 43),
+                textStyle: TextStyle(fontSize: 18),
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
               child: Text(hasCalculated ? "Reset" : "Hitung"),
             ),
             SizedBox(height: 20),
@@ -135,5 +145,3 @@ class _HomeState extends State<Home> {
     );
   }
 }
-
-void main() => runApp(MaterialApp(home: Home()));
