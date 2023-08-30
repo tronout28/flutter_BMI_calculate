@@ -1,44 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'bmi_controller.dart';
 
-void main() => runApp(MaterialApp(home: Home()));
-
-class Home extends StatefulWidget {
-  const Home({Key? key}) : super(key: key);
-
-  @override
-  State<Home> createState() => _HomeState();
-}
-
-class _HomeState extends State<Home> {
-  TextEditingController weightController = TextEditingController();
-  TextEditingController heightController = TextEditingController();
-  double bmi = 0;
-  bool hasCalculated = false;
-
-  @override
-  void initState() {
-    super.initState();
-    weightController = TextEditingController();
-    heightController = TextEditingController();
-  }
-
-  void calculateBMI() {
-    double weight = double.tryParse(weightController.text) ?? 0;
-    double height = double.tryParse(heightController.text) ?? 0;
-    if (height > 0) {
-      bmi = weight / (height * height);
-      hasCalculated = true;
-      setState(() {});
-    }
-  }
-
-  void resetBMI() {
-    weightController.text = "";
-    heightController.text = "";
-    bmi = 0;
-    hasCalculated = false;
-    setState(() {});
-  }
+class Home extends StatelessWidget {
+  final BMIController _bmiController = Get.put(BMIController());
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +39,7 @@ class _HomeState extends State<Home> {
             ),
             SizedBox(height: 20),
             TextFormField(
-              controller: weightController,
+              controller: _bmiController.weightController,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
                 labelText: 'Berat (kg)',
@@ -83,7 +48,7 @@ class _HomeState extends State<Home> {
             ),
             SizedBox(height: 8),
             TextFormField(
-              controller: heightController,
+              controller: _bmiController.heightController,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
                 labelText: 'Tinggi (m)',
@@ -92,7 +57,16 @@ class _HomeState extends State<Home> {
             ),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: hasCalculated ? resetBMI : calculateBMI,
+              onPressed: () {
+                if (_bmiController.hasCalculated.isTrue) {
+                  _bmiController.resetBMI();
+                } else {
+                  _bmiController.calculateBMI(
+                    double.tryParse(_bmiController.weightController.text) ?? 0,
+                    double.tryParse(_bmiController.heightController.text) ?? 0,
+                  );
+                }
+              },
               style: ElevatedButton.styleFrom(
                 primary: Color.fromARGB(255, 41, 42, 43),
                 textStyle: TextStyle(fontSize: 18),
@@ -101,44 +75,44 @@ class _HomeState extends State<Home> {
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              child: Text(hasCalculated ? "Reset" : "Hitung"),
+              child: Obx(() => Text(
+                _bmiController.hasCalculated.isTrue ? "Reset" : "Hitung",
+              )),
             ),
             SizedBox(height: 20),
-            if (hasCalculated)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    "Hasil perhitungan BMI:",
-                    style: TextStyle(fontSize: 20),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    bmi.toStringAsFixed(2),
-                    style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    "Anda termasuk orang yang:",
-                    style: TextStyle(fontSize: 20),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    bmi >= 18.5 && bmi <= 25
-                        ? "Ideal"
-                        : bmi < 18.5
-                            ? "Kurus"
-                            : "Obesitas",
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: bmi >= 18.5 && bmi <= 25
-                          ? Colors.green
-                          : Colors.red,
-                    ),
-                  ),
-                ],
-              ),
+            Obx(() => _bmiController.hasCalculated.isTrue
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Hasil perhitungan BMI:",
+                        style: TextStyle(fontSize: 20),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        _bmiController.bmi.value.toStringAsFixed(2),
+                        style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        "Anda termasuk orang yang:",
+                        style: TextStyle(fontSize: 20),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        _bmiController.resultText.value,
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: _bmiController.bmi.value >= 18.5 &&
+                                  _bmiController.bmi.value <= 25
+                              ? Colors.green
+                              : Colors.red,
+                        ),
+                      ),
+                    ],
+                  )
+                : Container()),
           ],
         ),
       ),
